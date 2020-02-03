@@ -35,9 +35,9 @@ def car(env, number, orderA, orderB, pickup):
 env = simpy.Environment()
 example_gen = example(env)
 #setup resources
-orderA = simpy.Resource(env capacity=1)
-orderB = simpy.Resource(env capacity=1)
-pickup = simpy.Resource(env capacity=1)
+orderA = simpy.Resource(env, capacity=1)
+orderB = simpy.Resource(env, capacity=1)
+pickup = simpy.Resource(env, capacity=1)
 #create the process
 p = simpy.events.Process(env, example_gen)
 #seed the random number gen

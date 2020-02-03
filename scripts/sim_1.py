@@ -27,9 +27,31 @@ def car(env, number, orderA, orderB, pickup):
         #make the car join the line it picked and wait until it gets to order
         yield line.request 
         #random number for wait time
-        order_time = random.expovariate(1.0 / mean_order_time) 
+        order_time = random.expovariate(1.0 / mean_order_time)
         yield env.timeout(order_time)
-        line.release(line)
+
+        #get time order is done
+        prep_time = (env.now() + random.expovariate(1.0 / mean_prep_time) )
+        
+
+        #check to see if you can move up
+        while(len(pickup) > pickup_length-1):
+            pass
+
+        #take a spot in the pickup line and leave the order line
+        pickup.release(line)
+        yield pickup.request
+
+        #random number for wait time
+        order_time = random.expovariate(1.0 / mean_collect_time) 
+        yield env.timeout(oder_time)
+
+        #wait for order if needed
+        while(env.now() < perp_time):
+            pass
+        pickup.release(pickup)
+        
+
 
 #setup env
 env = simpy.Environment()

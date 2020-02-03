@@ -24,7 +24,7 @@ def car(env, number, orderA, orderB, pickup):
     arrival_time = env.now #gets arrival time
 
     #checks if the car leaves or stays due to line length.
-    if(len(orderA.queue > order_length) and len(orderB.queue) order_length): 
+    if(len(orderA.queue > order_length) and len(orderB.queue) > order_length): 
         print("%7.4f: %s left without ordering" % (env.now, number)) 
     else:
         #assigns the shortest line to the car

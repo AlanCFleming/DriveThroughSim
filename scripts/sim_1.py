@@ -15,7 +15,7 @@ def example(env):
 
 #car to go through the line
 def car(env, number, orderA, orderB, pickup):
-    arrival_time = env.now() #gets arrival time
+    arrival_time = env.now #gets arrival time
 
     #checks if the car leaves or stays due to line length.
     if(len(orderA.queue > 3) and len(orderB.queue) > 3): 
@@ -50,8 +50,9 @@ def car(env, number, orderA, orderB, pickup):
         while(env.now() < perp_time):
             pass
         pickup.release(pickup)
-        
 
+        #print time taken 
+        print("%7.4f: %s left after %s minutes" % (env.now, number, env.now - arrival_time))
 
 #setup env
 env = simpy.Environment()

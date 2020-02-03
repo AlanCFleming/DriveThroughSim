@@ -34,10 +34,14 @@ def car(env, number, orderA, orderB, pickup):
         print("%7.4f: %s left without ordering" % (env.now, number)) 
     else:
         #assigns the shortest line to the car
-        line = orderA if (len(orderA.queue) < len(orderB.queue)) else orderB 
+        lineA = len(orderA.queue) < len(orderB.queue) 
         
         #make the car join the line it picked and wait until it gets to order
-        yield line.request() 
+        if lineA:
+            line = orderA.request()
+        else:
+            line =orderB.request()
+        yield line
         #random number for wait time
         order_time = random.expovariate(1.0 / mean_order_time)
         yield env.timeout(order_time)
@@ -48,11 +52,16 @@ def car(env, number, orderA, orderB, pickup):
 
         #check to see if you can move up
         while(len(pickup.queue) > pickup_length):
-            pass
+            #if the line is full, check again later
+            yield env.timeout(1)
 
         #take a spot in the pickup line and leave the order line
-        pickup.release(line)
-        yield pickup.request()
+        if lineA:
+            orderA.release(line)
+        else:
+            orderB.release(line)
+        line = pickup.request()
+        yield line
 
         #random number for wait time
         order_time = random.expovariate(1.0 / mean_collect_time) 
@@ -61,7 +70,7 @@ def car(env, number, orderA, orderB, pickup):
         #wait for order if needed
         if(env.now < prep_time):
             env.timeout(prep_time - env.now)
-        pickup.release(pickup)
+        pickup.release(line)
 
         #print time taken 
         print("%7.4f: %s left after %s minutes" % (env.now, number, env.now - arrival_time))

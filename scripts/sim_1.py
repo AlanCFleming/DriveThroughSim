@@ -12,7 +12,7 @@ mean_order_time = 2
 mean_prep_time = 5
 mean_collect_time = 2
 
-mean_AR = 5;
+mean_AR = 2;
 
 def cargen(env, number, orderA, orderB, pickup):
     #for loop to generate "number" cars

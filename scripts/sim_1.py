@@ -4,9 +4,15 @@ import simpy
 
 
 random_seed = 42
+
+pickup_length = 5
+order_length = 3
+
 mean_order_time = 2
 mean_prep_time = 5
 mean_collect_time = 2
+
+mean_AR = 5;
 
 def example(env):
     event = simpy.events.Timeout(env, delay=5, value=42)
@@ -18,7 +24,7 @@ def car(env, number, orderA, orderB, pickup):
     arrival_time = env.now #gets arrival time
 
     #checks if the car leaves or stays due to line length.
-    if(len(orderA.queue > 3) and len(orderB.queue) > 3): 
+    if(len(orderA.queue > order_length) and len(orderB.queue) order_length): 
         print("%7.4f: %s left without ordering" % (env.now, number)) 
     else:
         #assigns the shortest line to the car
@@ -35,7 +41,7 @@ def car(env, number, orderA, orderB, pickup):
         
 
         #check to see if you can move up
-        while(len(pickup) > pickup_length-1):
+        while(len(pickup) > pickup_length):
             pass
 
         #take a spot in the pickup line and leave the order line

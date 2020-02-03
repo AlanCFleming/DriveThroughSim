@@ -14,7 +14,7 @@ def example(env):
     print('now=%d, value=%d' % (env.now, value))
 
 #car to go through the line
-def car(env, number, orderA, orderB, pickup)
+def car(env, number, orderA, orderB, pickup):
     arrival_time = env.now() #gets arrival time
 
     #checks if the car leaves or stays

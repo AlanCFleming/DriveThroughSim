@@ -19,6 +19,18 @@ def example(env):
     value = yield event
     print('now=%d, value=%d' % (env.now, value))
 
+
+def cargen(env, number, orderA, orderB, pickup):
+    #for loop to generate "number" cars
+    for i in range(number):
+        #make and start car
+        c = car(env, i, orderA, orderB, pickup)
+        env.process(c)
+        #wait to make another
+        t = t = random.expovariate(1.0 / mean_AR)
+        yield env.timeout(t)
+
+
 #car to go through the line
 def car(env, number, orderA, orderB, pickup):
     arrival_time = env.now #gets arrival time

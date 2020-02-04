@@ -8,17 +8,17 @@ random_seed = 42
 pickup_length = 5
 order_length = 4
 
-mean_order_time = 2
+mean_order_time = 1.5
 mean_prep_time = 5
-mean_collect_time = 2
+mean_collect_time = 1
 
-mean_AR = 2;
+mean_AR = 1.5;
 
-def cargen(env, number, lineA, lineB, pickup):
+def cargen(env, number, lineA, lineB, orderA, orderB, pickup):
     #for loop to generate "number" cars
     for i in range(number):
         #make and start car
-        c = car(env, i, lineA, lineB, pickup)
+        c = car(env, i, lineA, lineB, orderA, orderB, pickup)
         env.process(c)
         #wait to make another
         t = t = random.expovariate(1.0 / mean_AR)
@@ -26,7 +26,7 @@ def cargen(env, number, lineA, lineB, pickup):
 
 
 #car to go through the line
-def car(env, number, lineA, lineB, pickup):
+def car(env, number, lineA, lineB, orderA, orderB, pickup):
     arrival_time = env.now #gets arrival time
 
     #checks if the car leaves or stays due to line length.
@@ -34,10 +34,10 @@ def car(env, number, lineA, lineB, pickup):
         print("%7.4f: %s left without ordering" % (env.now, number)) 
     else:
         #assigns the shortest line to the car
-        lineA = len(lineA.users) < len(lineB.users) 
+        aShort = len(lineA.users) < len(lineB.users) 
         
         #make the car join the line it picked and wait until it gets to order
-        if lineA:
+        if aShort:
             line = lineA.request()
             order = orderA.request()
         else:
@@ -52,7 +52,7 @@ def car(env, number, lineA, lineB, pickup):
         #get time order is done
         prep_time = (env.now + random.expovariate(1.0 / mean_prep_time) )
         
-        if lineA:
+        if aShort:
             orderA.release(order)
         else:
             orderB.release(order)
@@ -63,10 +63,10 @@ def car(env, number, lineA, lineB, pickup):
             yield env.timeout(1)
 
         #take a spot in the pickup line and leave the order line
-        if lineA:
+        if aShort:
             lineA.release(line)
         else:
-            lineB.release(line
+            lineB.release(line)
         line = pickup.request()
         yield line
 
@@ -92,11 +92,11 @@ lineA = simpy.Resource(env, capacity=5)
 lineB = simpy.Resource(env, capacity=5)
 ##order personel
 orderA = simpy.Resource(env, capacity=1)
-orderA = simpy.Resource(env, capacity=1)
+orderB = simpy.Resource(env, capacity=1)
 ##pickup window line
 pickup = simpy.Resource(env, capacity=1)
 #create the process
-generator = cargen(env,100 ,lineA ,lineB, pickup)
+generator = cargen(env,100 ,lineA ,lineB, orderA, orderB, pickup)
 p = simpy.events.Process(env, generator)
 #seed the random number gen
 random.seed(random_seed)

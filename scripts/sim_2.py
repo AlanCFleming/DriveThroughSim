@@ -3,7 +3,7 @@ import random
 import simpy
 
 
-random_seed = 42
+random_seed = 1024
 
 pickup_length = 5
 order_length = 4
@@ -51,7 +51,9 @@ def car(env, number, lineA, lineB, orderA, orderB, pickup):
 
         #get time order is done
         prep_time = (env.now + random.expovariate(1.0 / mean_prep_time) )
-        
+       
+        #print("car %s will get its food at %7.4f" % (number, prep_time))
+
         if aShort:
             orderA.release(order)
         else:
@@ -75,8 +77,8 @@ def car(env, number, lineA, lineB, orderA, orderB, pickup):
         yield env.timeout(order_time)
 
         #wait for order if needed
-        if(env.now < prep_time):
-            env.timeout(prep_time - env.now)
+        if(env.now < prep_time):            
+            yield env.timeout(prep_time - env.now)
         pickup.release(line)
 
         #print time taken 

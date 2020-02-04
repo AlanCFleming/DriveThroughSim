@@ -69,7 +69,7 @@ def car(env, number, orderA, orderB, pickup):
 
         #wait for order if needed
         if(env.now < prep_time):
-            env.timeout(prep_time - env.now)
+            yield env.timeout(prep_time - env.now)
         pickup.release(line)
 
         #print time taken 

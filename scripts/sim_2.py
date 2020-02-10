@@ -14,11 +14,11 @@ mean_collect_time = 1
 
 mean_AR = 1.5;
 
-def cargen(env, number, lineA, lineB, orderA, orderB, pickup):
+def cargen(env, number, lineA, lineB, orderA, orderB, lineP, pickup):
     #for loop to generate "number" cars
     for i in range(number):
         #make and start car
-        c = car(env, i, lineA, lineB, orderA, orderB, pickup)
+        c = car(env, i, lineA, lineB, orderA, orderB,lineP, pickup)
         env.process(c)
         #wait to make another
         t = t = random.expovariate(1.0 / mean_AR)
@@ -26,7 +26,7 @@ def cargen(env, number, lineA, lineB, orderA, orderB, pickup):
 
 
 #car to go through the line
-def car(env, number, lineA, lineB, orderA, orderB, pickup):
+def car(env, number, lineA, lineB, orderA, orderB,lineP, pickup):
     arrival_time = env.now #gets arrival time
 
     #checks if the car leaves or stays due to line length.
@@ -59,10 +59,9 @@ def car(env, number, lineA, lineB, orderA, orderB, pickup):
         else:
             orderB.release(order)
 
-        #check to see if you can move up
-        while(len(pickup.queue) > pickup_length):
-            #if the line is full, check again later
-            yield env.timeout(1)
+        #wait to move into pickup line
+        pLine = lineP.request()
+        yield pLine
 
         #take a spot in the pickup line and leave the order line
         if aShort:
@@ -71,6 +70,9 @@ def car(env, number, lineA, lineB, orderA, orderB, pickup):
             lineB.release(line)
         line = pickup.request()
         yield line
+
+        #release pLine
+        lineP.release(pLine)
 
         #random number for wait time
         order_time = random.expovariate(1.0 / mean_collect_time) 
@@ -95,10 +97,11 @@ lineB = simpy.Resource(env, capacity=5)
 ##order personel
 orderA = simpy.Resource(env, capacity=1)
 orderB = simpy.Resource(env, capacity=1)
-##pickup window line
+##pickup window
+lineP = simpy.Resource(env, capacity=6)
 pickup = simpy.Resource(env, capacity=1)
 #create the process
-generator = cargen(env,100 ,lineA ,lineB, orderA, orderB, pickup)
+generator = cargen(env,100 ,lineA ,lineB, orderA, orderB,lineP, pickup)
 p = simpy.events.Process(env, generator)
 #seed the random number gen
 random.seed(random_seed)

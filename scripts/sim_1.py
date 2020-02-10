@@ -3,7 +3,7 @@ import random
 import simpy
 
 
-random_seed = 42
+random_seed = 5
 
 pickup_length = 5
 order_length = 3
@@ -14,11 +14,11 @@ mean_collect_time = 2
 
 mean_AR = 2;
 
-def cargen(env, number, orderA, orderB, pickup):
+def cargen(env, number, orderA, orderB,lineP, pickup):
     #for loop to generate "number" cars
     for i in range(number):
         #make and start car
-        c = car(env, i, orderA, orderB, pickup)
+        c = car(env, i, orderA, orderB,lineP, pickup)
         env.process(c)
         #wait to make another
         t = t = random.expovariate(1.0 / mean_AR)
@@ -26,7 +26,7 @@ def cargen(env, number, orderA, orderB, pickup):
 
 
 #car to go through the line
-def car(env, number, orderA, orderB, pickup):
+def car(env, number, orderA, orderB, lineP, pickup):
     arrival_time = env.now #gets arrival time
 
     #checks if the car leaves or stays due to line length.
@@ -50,18 +50,21 @@ def car(env, number, orderA, orderB, pickup):
         prep_time = (env.now + random.expovariate(1.0 / mean_prep_time) )
         
 
-        #check to see if you can move up
-        while(len(pickup.queue) > pickup_length):
-            #if the line is full, check again later
-            yield env.timeout(1)
+        #grab a spot in line to pickup
+        pLine = lineP.request()
+        yield pLine
 
-        #take a spot in the pickup line and leave the order line
+        
+        #leave order line and wait to pickup order
         if lineA:
             orderA.release(line)
         else:
             orderB.release(line)
         line = pickup.request()
         yield line
+
+        #leave pickup line to pickup order
+        lineP.release(pLine)
 
         #random number for wait time
         order_time = random.expovariate(1.0 / mean_collect_time) 
@@ -80,11 +83,14 @@ def car(env, number, orderA, orderB, pickup):
 #setup env
 env = simpy.Environment()
 #setup resources
+##ordering recources
 orderA = simpy.Resource(env, capacity=1)
 orderB = simpy.Resource(env, capacity=1)
+##pickup resources
 pickup = simpy.Resource(env, capacity=1)
+lineP = simpy.Resource(env, capacity=6)
 #create the process
-generator = cargen(env,100 ,orderA ,orderB, pickup)
+generator = cargen(env,100 ,orderA ,orderB,lineP, pickup)
 p = simpy.events.Process(env, generator)
 #seed the random number gen
 random.seed(random_seed)

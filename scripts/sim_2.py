@@ -120,6 +120,10 @@ count = simpy.Container(env)
 left = simpy.Container(env)
 #first run boolean
 first = True
+
+#print table headers
+print(f'%7s , %7s , %7s , %7s' % ( "AR","Count","Left","Left/Count"))
+
 #Run until more than 50% of cars leave
 while(first or (left.level/count.level < .5)):
     #clear the first run boolean 
@@ -138,6 +142,6 @@ while(first or (left.level/count.level < .5)):
     #run the env
     env.run()
     #print stats
-    print(f'%3.3f %3d %3d %.3f' %(mean_AR, count.level, left.level, left.level/count.level))
+    print(f'%3.5f , %7d , %7d , %1.6f' %(mean_AR, count.level, left.level, left.level/count.level))
 
     mean_AR = mean_AR - 0.125 

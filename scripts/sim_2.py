@@ -16,14 +16,28 @@ mean_AR = 5
 
 
 def cargen(env, time, lineA, lineB, orderA, orderB, lineP, pickup,running,count,left):
-   
+    start = env.now
     
-    #for loop to generate "number" cars
-    while(time >= env.now):
+    #spool up car gen to get better average:
+    #generate cars for user specified time without stats
+    while((start + time) >= env.now):
+        #make and start car
+        running.put(1)
+        c = car(env, count.level, lineA, lineB, orderA, orderB,lineP, pickup)
+        env.process(c)
+        #wait to make another
+        t = t = random.expovariate(1.0 / mean_AR)
+        yield env.timeout(t)
+
+    #clear left counter if needed
+    if(left.level > 0):
+        left.get(left.level)
+
+    #generate additional cars for user specified time with stats
+    while((start + 2*time) >= env.now):
         #make and start car
         count.put(1)
         running.put(1)
-
         c = car(env, count.level, lineA, lineB, orderA, orderB,lineP, pickup)
         env.process(c)
         #wait to make another
@@ -135,7 +149,7 @@ while(first or (left.level/count.level < .5)):
     left = simpy.Container(env)
 
     #create the process
-    generator = cargen(env,(env.now + 120) ,lineA ,lineB, orderA, orderB,lineP, pickup, running, count, left)
+    generator = cargen(env, 120 ,lineA ,lineB, orderA, orderB,lineP, pickup, running, count, left)
     p = simpy.events.Process(env, generator)
     #seed the random number gen
     random.seed(random_seed)

@@ -2,8 +2,9 @@
 import random
 import simpy
 
-
+##USER VARIABLES:
 random_seed = 1024
+runtime = 120
 
 pickup_length = 5
 order_length = 4
@@ -14,7 +15,7 @@ mean_collect_time = 1
 
 mean_AR = 5
 
-
+##CODE:
 def cargen(env, time, lineA, lineB, orderA, orderB, lineP, pickup,running,count,left):
     start = env.now
     
@@ -149,7 +150,7 @@ while(first or (left.level/count.level < .5)):
     left = simpy.Container(env)
 
     #create the process
-    generator = cargen(env, 120 ,lineA ,lineB, orderA, orderB,lineP, pickup, running, count, left)
+    generator = cargen(env, runtime ,lineA ,lineB, orderA, orderB,lineP, pickup, running, count, left)
     p = simpy.events.Process(env, generator)
     #seed the random number gen
     random.seed(random_seed)

@@ -123,6 +123,6 @@ while(first or (left.level/count.level < .5)):
     #run the env
     env.run()
     #print stats
-    print(mean_AR, count.level, left.level, left.level / count.level )
+    print(f'%3.3f %3d %3d %.3f' %(mean_AR, count.level, left.level, left.level/count.level))
     #lower AR
     mean_AR = mean_AR - 0.125

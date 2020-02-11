@@ -14,11 +14,19 @@ mean_collect_time = 2
 
 mean_AR = 2;
 
-def cargen(env, number, orderA, orderB,lineP, pickup):
-    #for loop to generate "number" cars
-    for i in range(number):
-        #make and start car
-        c = car(env, i, orderA, orderB,lineP, pickup)
+#count of cars total and cars left
+count = 0
+left = 0
+
+def cargen(env, time, orderA, orderB,lineP, pickup):
+    
+    global count, left
+    
+    #generate cars during time frame
+    while(time >= env.now):
+        #make and start a car
+        count += 1
+        c = car(env, count, orderA, orderB,lineP, pickup)
         env.process(c)
         #wait to make another
         t = t = random.expovariate(1.0 / mean_AR)
@@ -32,6 +40,7 @@ def car(env, number, orderA, orderB, lineP, pickup):
     #checks if the car leaves or stays due to line length.
     if(len(orderA.queue) >  order_length and len(orderB.queue) > order_length): 
         print("%7.4f: %s left without ordering" % (env.now, number)) 
+        left += 1
     else:
         #assigns the shortest line to the car
         lineA = len(orderA.queue) < len(orderB.queue) 
@@ -90,7 +99,7 @@ orderB = simpy.Resource(env, capacity=1)
 pickup = simpy.Resource(env, capacity=1)
 lineP = simpy.Resource(env, capacity=6)
 #create the process
-generator = cargen(env,100 ,orderA ,orderB,lineP, pickup)
+generator = cargen(env,120 ,orderA ,orderB,lineP, pickup)
 p = simpy.events.Process(env, generator)
 #seed the random number gen
 random.seed(random_seed)

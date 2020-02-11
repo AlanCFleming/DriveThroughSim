@@ -20,8 +20,9 @@ left = 0
 
 
 def cargen(env, time, lineA, lineB, orderA, orderB, lineP, pickup):
-    
-    global count left
+   
+    #access global variable
+    global count
 
     #for loop to generate "number" cars
     while(time >= env.now):
@@ -37,6 +38,9 @@ def cargen(env, time, lineA, lineB, orderA, orderB, lineP, pickup):
 #car to go through the line
 def car(env, number, lineA, lineB, orderA, orderB,lineP, pickup):
     arrival_time = env.now #gets arrival time
+
+    #access global variable
+    global left
 
     #checks if the car leaves or stays due to line length.
     if(len(lineA.users) >  order_length and len(lineB.users) > order_length): 
@@ -117,3 +121,5 @@ p = simpy.events.Process(env, generator)
 random.seed(random_seed)
 #run the env
 env.run()
+#print stats
+print(count, left)

@@ -3,7 +3,7 @@ import random
 import simpy
 
 
-random_seed = 5
+random_seed = 1024
 
 pickup_length = 5
 order_length = 3
@@ -12,15 +12,15 @@ mean_order_time = 2
 mean_prep_time = 5
 mean_collect_time = 2
 
-mean_AR = 2;
+mean_AR = 1.5
 
 #count of cars total and cars left
 count = 0
 left = 0
 
 def cargen(env, time, orderA, orderB,lineP, pickup):
-    
-    global count, left
+    #access global variable
+    global count
     
     #generate cars during time frame
     while(time >= env.now):
@@ -36,6 +36,9 @@ def cargen(env, time, orderA, orderB,lineP, pickup):
 #car to go through the line
 def car(env, number, orderA, orderB, lineP, pickup):
     arrival_time = env.now #gets arrival time
+
+    #access global variable
+    global left
 
     #checks if the car leaves or stays due to line length.
     if(len(orderA.queue) >  order_length and len(orderB.queue) > order_length): 
@@ -105,3 +108,5 @@ p = simpy.events.Process(env, generator)
 random.seed(random_seed)
 #run the env
 env.run()
+#print stats
+print(count,left)

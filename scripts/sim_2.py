@@ -1,4 +1,16 @@
 #!/usr/bin/python3
+
+
+##################################################
+## This is a simulation that models cars moving through a drive though.
+## In this case there are two mobile ordering personel and a single pickup station
+## All variables used to effect simulation run time can be found under #USER VARIABLES
+##################################################
+## Author: Alan Fleming
+## Email: alanfleming1998@gmail.com
+##################################################
+
+
 import random
 import simpy
 
@@ -44,7 +56,7 @@ def cargen(env, time, lineA, lineB, orderA, orderB, lineP, pickup,running,count,
         #wait to make another
         t = t = random.expovariate(1.0 / mean_AR)
         yield env.timeout(t)
-    
+    #clear out running cars before ending generator
     while(running.level > 0):
         yield env.timeout(1)
 
@@ -55,7 +67,6 @@ def car(env, number, lineA, lineB, orderA, orderB,lineP, pickup):
 
     #checks if the car leaves or stays due to line length.
     if(len(lineA.users) >  order_length and len(lineB.users) > order_length): 
-        #print("%7.4f: %s left without ordering" % (env.now, number))
         left.put(1)
         running.get(1)
     else:
@@ -78,8 +89,7 @@ def car(env, number, lineA, lineB, orderA, orderB,lineP, pickup):
         #get time order is done
         prep_time = (env.now + random.expovariate(1.0 / mean_prep_time) )
        
-        #print("car %s will get its food at %7.4f" % (number, prep_time))
-
+        
         if aShort:
             orderA.release(order)
         else:
@@ -111,11 +121,7 @@ def car(env, number, lineA, lineB, orderA, orderB,lineP, pickup):
         
         running.get(1)
 
-        #print time taken 
-        #print("%7.4f: %s left after %s minutes" % (env.now, number, env.now - arrival_time))
-
-
-
+        
 #setup env
 env = simpy.Environment()
 #setup resources
@@ -126,7 +132,7 @@ lineB = simpy.Resource(env, capacity=5)
 orderA = simpy.Resource(env, capacity=1)
 orderB = simpy.Resource(env, capacity=1)
 ##pickup window
-lineP = simpy.Resource(env, capacity=6)
+lineP = simpy.Resource(env, capacity= (pickup_length + 1))
 pickup = simpy.Resource(env, capacity=1)
 
 #setup counting resources

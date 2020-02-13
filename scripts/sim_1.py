@@ -1,4 +1,16 @@
 #!/usr/bin/python3
+
+
+##################################################
+## This is a simulation that models cars moving through a drive though.
+## In this case there are two stationary order stations and a single pickup station
+## All variables used to effect simulation run time can be found under #USER VARIABLES
+##################################################
+## Author: Alan Fleming
+## Email: alanfleming1998@gmail.com
+##################################################
+
+
 import random
 import simpy
 
@@ -45,7 +57,7 @@ def cargen(env, time, orderA, orderB,lineP, pickup, running, count, left):
         #wait to make another
         t = t = random.expovariate(1.0 / mean_AR)
         yield env.timeout(t)
-    
+    #clear out running cars before ending generator
     while(running.level>  0):
         yield env.timeout(1)
 
@@ -106,9 +118,6 @@ def car(env, number, orderA, orderB, lineP, pickup, running, left):
         #take running resource
         running.get(1)
 
-        #print time taken 
-        #print("%7.4f: %s left after %s minutes" % (env.now, number, env.now - arrival_time))
-
 #setup environment
 env = simpy.Environment()
 #setup resources
@@ -117,7 +126,7 @@ orderA = simpy.Resource(env, capacity=1)
 orderB = simpy.Resource(env, capacity=1)
 ##pickup resources
 pickup = simpy.Resource(env, capacity=1)
-lineP = simpy.Resource(env, capacity=6)
+lineP = simpy.Resource(env, capacity= (pickup_length + 1))
 #setup counting resources
 running = simpy.Container(env)
 count = simpy.Container(env)
